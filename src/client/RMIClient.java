@@ -5,6 +5,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.Random;
+import java.util.Set;
 
 import server.ServerImpl;
 import shared.MapServer;
@@ -30,6 +31,7 @@ public class RMIClient {
                 case 1:
                     try {
                         server = (MapServer) registry.lookup("Server1");
+                        System.out.println("CLIENT TRYING SERVER1");
                         break;
                     } catch (NotBoundException e) {
                         System.out.println("Couldn't connect to Server1, trying Server2");
@@ -37,6 +39,7 @@ public class RMIClient {
                 case 2:
                     try {
                         server = (MapServer) registry.lookup("Server2");
+                        System.out.println("CLIENT TRYING SERVER2");
                         break;
                     } catch (NotBoundException e) {
                         System.out.println("Couldn't connect to Server2, trying Server3");
@@ -44,6 +47,7 @@ public class RMIClient {
                 case 3:
                     try {
                         server = (MapServer) registry.lookup("Server3");
+                        System.out.println("CLIENT TRYING SERVER3");
                         break;
                     } catch (NotBoundException e) {
                         System.out.println("Couldn't connect to Server3.");
@@ -57,7 +61,13 @@ public class RMIClient {
                     Thread.sleep(new Random().nextInt(3) * 1000);
                     continue;
             }
-            completed = server.prepare(timestamp, message);
+            Set<String> stateOfSet = server.prepare(timestamp, message);
+            if (stateOfSet != null) {
+                completed = true;
+                System.out.println("Message successfully added! State of mySet: " + stateOfSet);
+            }
+            System.out.println("Failed to get a consensus. Retrying prepare()");
+            Thread.sleep(new Random().nextInt(3) * 1000);
         }
         if (maxAttempts <= 0) {
             System.out.println("MaxAttempts ran out! Operation cancelled. Reason: Server could not perform operation");

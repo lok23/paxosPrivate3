@@ -38,7 +38,7 @@ public class ServerImpl implements MapServer {
 
     // PREPARE is a PROPOSER method
     @Override
-    public synchronized boolean prepare(long timestamp, String message) throws RemoteException, InterruptedException, NotBoundException {
+    public synchronized Set<String> prepare(long timestamp, String message) throws RemoteException, InterruptedException, NotBoundException {
         System.out.println("LOG MESSAGE: ServerImpl.prepare() entered. Server" + this.serverId);
 
 //        this.proposerTimestamp = timestamp;
@@ -120,15 +120,23 @@ public class ServerImpl implements MapServer {
 
         if (promiseCount >= 2) { // we can go ahead, we know that we have a quorum
             if (biggestTimeStamp == 0 && biggestMessage == null) { // nothing has been accepted yet, propose our own message
-                boolean result = this.propose(timestamp, message);
-                return result;
+                boolean successfulPaxosRun = this.propose(timestamp, message);
+                if (successfulPaxosRun) {
+                    return mySet;
+                } else {
+                    return null;
+                }
             } else { // propagate the message associated with the biggestTimeStamp
-                boolean result = this.propose(biggestTimeStamp, biggestMessage);
-                return result;
+                boolean successfulPaxosRun = this.propose(biggestTimeStamp, biggestMessage);
+                if (successfulPaxosRun) {
+                    return mySet;
+                } else {
+                    return null;
+                }
             }
         } else {
             System.out.println("ServerImpl.prepare() failed to receive 2 promises. Timestamp: " + timestamp);
-            return false;
+            return null;
         }
 
     }
@@ -197,7 +205,7 @@ public class ServerImpl implements MapServer {
                 acceptedCount++;
             }
         } catch (NotBoundException e) {
-            System.out.println("Server2 not found!");
+            System.out.println("Server3 not found!");
         }
 
         System.out.println("acceptedCount: " + acceptedCount);
@@ -205,6 +213,7 @@ public class ServerImpl implements MapServer {
         if (acceptedCount >= 2) { // we can go ahead, we know that we have a quorum
             mySet.add(message);
             System.out.println("Server successfully added: " + message);
+            System.out.println("mySet: " + mySet);
 //            myMap.put()
             return true;
         } else {

@@ -3,11 +3,12 @@ package shared;
 import java.rmi.NotBoundException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.util.Set;
 
 public interface MapServer extends Remote {
 
     // PREPARE is a PROPOSER method
-    boolean prepare(long timestamp, String message) throws RemoteException, InterruptedException, NotBoundException;
+    Set<String> prepare(long timestamp, String message) throws RemoteException, InterruptedException, NotBoundException;
 
     // PROMISE is an ACCEPTOR method
     String[] promise(long timestamp) throws RemoteException, InterruptedException, NotBoundException;
