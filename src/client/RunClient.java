@@ -14,7 +14,7 @@ public class RunClient {
             String PORT_NUMBER = args[1];
 
             RMIClient client = new RMIClient();
-            client.startClient();
+            client.startClient(IP_ADDRESS, Integer.valueOf(PORT_NUMBER));
 
             Scanner in = new Scanner(System.in);
 

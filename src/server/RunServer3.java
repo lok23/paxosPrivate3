@@ -16,7 +16,7 @@ import java.util.Random;
 
 import shared.MapServer;
 
-public class RunServer2 {
+public class RunServer3 {
 
     private static Registry registry;
 
@@ -27,30 +27,30 @@ public class RunServer2 {
             int PORT_NUMBER = Integer.valueOf(args[0]);
 
             registry = LocateRegistry.getRegistry("localhost", PORT_NUMBER);
-            MapServer server2 = new ServerImpl();
-            registry.bind("Server2", server2);
+            MapServer server3 = new ServerImpl();
+            registry.bind("Server3", server3);
 
             long start;
             long current;
             Random rand = new Random();
             while (true) {
 
-                System.out.println("Server2 is up!");
+                System.out.println("Server3 is up!");
                 int upTime = rand.nextInt(4) * 1000 + 7000; // 7000-10000 sec upTime
                 start = System.currentTimeMillis();
                 Thread.sleep(upTime);
                 current = System.currentTimeMillis();
-                System.out.println("Server2 was up for " + (current - start) + " milliseconds");
+                System.out.println("Server3 was up for " + (current - start) + " milliseconds");
 
-                registry.unbind("Server2");
-                System.out.println("Server2 is down!");
+                registry.unbind("Server3");
+                System.out.println("Server3 is down!");
                 int downTime = rand.nextInt(3) * 1000 + 3000; // 3000-5000 sec downTime
                 start = System.currentTimeMillis();
                 Thread.sleep(downTime);
                 current = System.currentTimeMillis();
-                System.out.println("Server2 was down for " + (current - start) + " milliseconds");
+                System.out.println("Server3 was down for " + (current - start) + " milliseconds");
 
-                registry.bind("Server2", server2);
+                registry.bind("Server3", server3);
             }
         }
     }
