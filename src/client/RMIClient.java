@@ -65,6 +65,7 @@ public class RMIClient {
             if (stateOfSet != null) {
                 completed = true;
                 System.out.println("Message successfully added! State of mySet: " + stateOfSet);
+                break;
             }
             System.out.println("Failed to get a consensus. Retrying prepare()");
             Thread.sleep(new Random().nextInt(3) * 1000);

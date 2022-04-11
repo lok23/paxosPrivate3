@@ -59,6 +59,7 @@ public class ServerImpl implements MapServer {
             server1 = (MapServer) registry.lookup("Server1");
             String[] response = server1.promise(timestamp); // response = [String acceptorTimestamp, String? acceptorMessage]
             if (response != null) {
+                System.out.println("Server1 promiseCount++");
                 promiseCount++;
                 long acceptorTimestamp = Long.valueOf(response[0]);
                 String acceptorMessage = response[1];
@@ -77,10 +78,10 @@ public class ServerImpl implements MapServer {
         MapServer server2;
         try {
             server2 = (MapServer) registry.lookup("Server2");
-            promiseCount++;
             String[] response = server2.promise(timestamp); // response = [String acceptorTimestamp, String? acceptorMessage]
             if (response != null) {
                 promiseCount++;
+                System.out.println("Server2 promiseCount++");
                 long acceptorTimestamp = Long.valueOf(response[0]);
                 String acceptorMessage = response[1];
 
@@ -98,10 +99,10 @@ public class ServerImpl implements MapServer {
         MapServer server3;
         try {
             server3 = (MapServer) registry.lookup("Server3");
-            promiseCount++;
             String[] response = server3.promise(timestamp); // response = [String acceptorTimestamp, String? acceptorMessage]
             if (response != null) {
                 promiseCount++;
+                System.out.println("Server3 promiseCount++");
                 long acceptorTimestamp = Long.valueOf(response[0]);
                 String acceptorMessage = response[1];
 
@@ -183,6 +184,7 @@ public class ServerImpl implements MapServer {
             server1 = (MapServer) registry.lookup("Server1");
             if (server1.accept(timestamp, message)) {
                 acceptedCount++;
+                System.out.println("Server1 acceptCount++");
             }
         } catch (NotBoundException e) {
             System.out.println("Server1 not found!");
@@ -193,6 +195,7 @@ public class ServerImpl implements MapServer {
             server2 = (MapServer) registry.lookup("Server2");
             if (server2.accept(timestamp, message)) {
                 acceptedCount++;
+                System.out.println("Server2 acceptCount++");
             }
         } catch (NotBoundException e) {
             System.out.println("Server2 not found!");
@@ -203,6 +206,7 @@ public class ServerImpl implements MapServer {
             server3 = (MapServer) registry.lookup("Server3");
             if (server3.accept(timestamp, message)) {
                 acceptedCount++;
+                System.out.println("Server3 acceptCount++");
             }
         } catch (NotBoundException e) {
             System.out.println("Server3 not found!");
