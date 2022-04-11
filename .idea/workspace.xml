@@ -2,20 +2,17 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="a5bb676c-d939-468a-b967-eaaf6e76098b" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/server/RunServer3.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/paxosTest3/client/RMIClient.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/paxosTest3/client/RMIClient.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/paxosTest3/server/RunServer1.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/paxosTest3/server/RunServer1.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/paxosTest3/server/RunServer2.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/paxosTest3/server/RunServer2.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/acceptor/Acceptor.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/acceptor/Acceptor1.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/acceptor/Acceptor2.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/acceptor/Acceptor3.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/acceptor/AcceptorInterface.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/paxosTest3/server/RunServer3.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/paxosTest3/server/RunServer3.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/paxosTest3/server/ServerImpl.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/paxosTest3/server/ServerImpl.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/paxosTest3/shared/MapServer.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/paxosTest3/shared/MapServer.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/client/RMIClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/client/RMIClient.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/client/RunClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/client/RunClient.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/server/RunServer1.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/server/RunServer1.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/server/RunServer2.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/server/RunServer2.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/server/ServerImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/server/ServerImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shared/MapServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/shared/MapServer.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -134,30 +131,30 @@
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state x="223" y="70" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1536.824@0.0.1536.824" timestamp="1649650169025" />
-    <state x="574" y="122" key="#com.intellij.ide.util.MemberChooser" timestamp="1649648154413">
+    <state x="574" y="122" key="#com.intellij.ide.util.MemberChooser" timestamp="1649654136676">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state x="574" y="122" key="#com.intellij.ide.util.MemberChooser/0.0.1536.824@0.0.1536.824" timestamp="1649648154413" />
+    <state x="574" y="122" key="#com.intellij.ide.util.MemberChooser/0.0.1536.824@0.0.1536.824" timestamp="1649654136676" />
     <state x="549" y="170" key="FileChooserDialogImpl" timestamp="1649647805615">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state x="549" y="170" key="FileChooserDialogImpl/0.0.1536.824@0.0.1536.824" timestamp="1649647805615" />
-    <state width="1493" height="189" key="GridCell.Tab.0.bottom" timestamp="1649651145256">
+    <state width="1493" height="188" key="GridCell.Tab.0.bottom" timestamp="1649696016705">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state width="1493" height="189" key="GridCell.Tab.0.bottom/0.0.1536.824@0.0.1536.824" timestamp="1649651145256" />
-    <state width="1493" height="189" key="GridCell.Tab.0.center" timestamp="1649651145255">
+    <state width="1493" height="188" key="GridCell.Tab.0.bottom/0.0.1536.824@0.0.1536.824" timestamp="1649696016705" />
+    <state width="1493" height="188" key="GridCell.Tab.0.center" timestamp="1649696016704">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state width="1493" height="189" key="GridCell.Tab.0.center/0.0.1536.824@0.0.1536.824" timestamp="1649651145255" />
-    <state width="1493" height="189" key="GridCell.Tab.0.left" timestamp="1649651145255">
+    <state width="1493" height="188" key="GridCell.Tab.0.center/0.0.1536.824@0.0.1536.824" timestamp="1649696016704" />
+    <state width="1493" height="188" key="GridCell.Tab.0.left" timestamp="1649696016704">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state width="1493" height="189" key="GridCell.Tab.0.left/0.0.1536.824@0.0.1536.824" timestamp="1649651145255" />
-    <state width="1493" height="189" key="GridCell.Tab.0.right" timestamp="1649651145256">
+    <state width="1493" height="188" key="GridCell.Tab.0.left/0.0.1536.824@0.0.1536.824" timestamp="1649696016704" />
+    <state width="1493" height="188" key="GridCell.Tab.0.right" timestamp="1649696016704">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state width="1493" height="189" key="GridCell.Tab.0.right/0.0.1536.824@0.0.1536.824" timestamp="1649651145256" />
+    <state width="1493" height="188" key="GridCell.Tab.0.right/0.0.1536.824@0.0.1536.824" timestamp="1649696016704" />
     <state width="1493" height="210" key="GridCell.Tab.1.bottom" timestamp="1649649269754">
       <screen x="0" y="0" width="1536" height="824" />
     </state>

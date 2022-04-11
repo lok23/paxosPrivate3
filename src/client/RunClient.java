@@ -21,7 +21,7 @@ public class RunClient {
             while (true) {
                 System.out.print("Enter commands: ");
                 String line = in.nextLine();
-                client.prepare(System.currentTimeMillis(), line);
+                client.prepare(line);
                 System.out.println("PAXOS complete!");
             }
         }

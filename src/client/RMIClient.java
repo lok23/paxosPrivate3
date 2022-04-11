@@ -14,13 +14,14 @@ public class RMIClient {
 
     public void startClient(String IP_ADDRESS, int PORT_NUMBER) throws Exception {
         registry = LocateRegistry.getRegistry(IP_ADDRESS, PORT_NUMBER);
-
     }
 
-    public void prepare(long timestamp, String message) throws RemoteException, InterruptedException, NotBoundException {
+    public void prepare(String message) throws RemoteException, InterruptedException, NotBoundException {
+        int maxAttempts = 4;
         boolean completed = false;
-        while (!completed) {
-
+        while (maxAttempts > 0 && !completed) {
+            maxAttempts--;
+            long timestamp = System.currentTimeMillis();
             MapServer server;
 
             // try to connect with Server1, then Server2, then Server3, then repeat until it works
@@ -49,9 +50,17 @@ public class RMIClient {
                     }
                 default:
                     System.out.println("Incredibly bad luck! All Servers down. Retrying from Server1");
+                    maxAttempts--;
+                    if (maxAttempts <= 0) {
+                        System.out.println("MaxAttempts ran out! Operation cancelled. Reason: All servers down");
+                    }
+                    Thread.sleep(new Random().nextInt(3) * 1000);
                     continue;
             }
             completed = server.prepare(timestamp, message);
+        }
+        if (maxAttempts <= 0) {
+            System.out.println("MaxAttempts ran out! Operation cancelled. Reason: Server could not perform operation");
         }
         System.out.println("Client prepare finished!");
     }
