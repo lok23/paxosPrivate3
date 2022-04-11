@@ -9,7 +9,7 @@ public interface MapServer extends Remote {
     // PREPARE is a PROPOSER method
     boolean prepare(long timestamp, String message) throws RemoteException, InterruptedException, NotBoundException;
 
-    // PROMISE is a ACCEPTOR method
+    // PROMISE is an ACCEPTOR method
     String[] promise(long timestamp) throws RemoteException, InterruptedException, NotBoundException;
 
     // PROPOSE is a PROPOSER method

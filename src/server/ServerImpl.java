@@ -10,14 +10,18 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import shared.MapServer;
 
 
 public class ServerImpl implements MapServer {
 
+    private Set<String> mySet = new HashSet<>(); // "mySet" is just for testing. Remove once done
+    private Map<String, Integer> myMap = new HashMap<>();
     private int serverId;
 
     private long proposerTimestamp = 0;
@@ -37,8 +41,8 @@ public class ServerImpl implements MapServer {
     public synchronized boolean prepare(long timestamp, String message) throws RemoteException, InterruptedException, NotBoundException {
         System.out.println("LOG MESSAGE: ServerImpl.prepare() entered. Server" + this.serverId);
 
-        this.proposerTimestamp = timestamp;
-        this.proposerMessage = message;
+//        this.proposerTimestamp = timestamp;
+//        this.proposerMessage = message;
         int promiseCount = 0;
 
         // the bigger the timestamp, the "newer" it is
@@ -114,9 +118,9 @@ public class ServerImpl implements MapServer {
 
         System.out.println("promiseCount: " + promiseCount);
 
-        if (promiseCount >= 2) {
+        if (promiseCount >= 2) { // we can go ahead, we know that we have a quorum
             if (biggestTimeStamp == 0 && biggestMessage == null) { // nothing has been accepted yet, propose our own message
-                boolean result = this.propose(this.proposerTimestamp, this.proposerMessage);
+                boolean result = this.propose(timestamp, message);
                 return result;
             } else { // propagate the message associated with the biggestTimeStamp
                 boolean result = this.propose(biggestTimeStamp, biggestMessage);
@@ -129,7 +133,7 @@ public class ServerImpl implements MapServer {
 
     }
 
-    // PROMISE is a PROPOSER method
+    // PROMISE is an ACCEPTOR method
     // promise returns the timestamp and message
     @Override
     public String[] promise(long timestamp) throws RemoteException, InterruptedException, NotBoundException {
@@ -169,12 +173,57 @@ public class ServerImpl implements MapServer {
         MapServer server1;
         try {
             server1 = (MapServer) registry.lookup("Server1");
-            server1.accept(timestamp, message);
+            if (server1.accept(timestamp, message)) {
+                acceptedCount++;
+            }
         } catch (NotBoundException e) {
             System.out.println("Server1 not found!");
         }
 
-        return false;
+        MapServer server2;
+        try {
+            server2 = (MapServer) registry.lookup("Server2");
+            if (server2.accept(timestamp, message)) {
+                acceptedCount++;
+            }
+        } catch (NotBoundException e) {
+            System.out.println("Server2 not found!");
+        }
+
+        MapServer server3;
+        try {
+            server3 = (MapServer) registry.lookup("Server3");
+            if (server3.accept(timestamp, message)) {
+                acceptedCount++;
+            }
+        } catch (NotBoundException e) {
+            System.out.println("Server2 not found!");
+        }
+
+        System.out.println("acceptedCount: " + acceptedCount);
+
+        if (acceptedCount >= 2) { // we can go ahead, we know that we have a quorum
+            mySet.add(message);
+            System.out.println("Server successfully added: " + message);
+//            myMap.put()
+            return true;
+        } else {
+            System.out.println("ServerImpl.propose() failed to receive 2 accepts. Timestamp: " + timestamp);
+            return false;
+        }
+    }
+
+    // ACCEPT is an ACCEPTOR method
+    @Override
+    public boolean accept(long timestamp, String message) throws RemoteException, InterruptedException, NotBoundException {
+        System.out.println("LOG MESSAGE: ServerImpl.accept() entered. Server" + this.serverId);
+        if (timestamp < this.acceptorTimestamp) {
+            return false;
+        } else { // our proposal has the biggest timestamp this acceptor has seen, we can finally accept this
+            this.acceptorTimestamp = timestamp;
+            this.acceptorMessage = message;
+            return true;
+        }
     }
 
 
