@@ -39,6 +39,7 @@ public class RunServer1 {
                 current = System.currentTimeMillis();
                 System.out.println("Server1 was up for " + (current - start) + " milliseconds");
 
+                server1.resetAcceptor(); // this might not be good
                 registry.unbind("Server1");
                 System.out.println("Server1 is down!");
                 int downTime = rand.nextInt(3) * 1000 + 3000; // 3000-5000 sec downTime

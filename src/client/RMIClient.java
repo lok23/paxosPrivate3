@@ -1,5 +1,6 @@
 package client;
 
+import java.rmi.AccessException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -21,7 +22,6 @@ public class RMIClient {
         int maxAttempts = 4;
         boolean completed = false;
         while (maxAttempts > 0 && !completed) {
-            maxAttempts--;
             long timestamp = System.currentTimeMillis();
             MapServer server;
 
@@ -61,21 +61,49 @@ public class RMIClient {
                     Thread.sleep(new Random().nextInt(3) * 1000);
                     continue;
             }
+            if (server.isExistingPaxosRun()) {
+                System.out.println("There is likely contention in your paxos run");
+            }
             Set<String> stateOfSet = server.prepare(timestamp, message);
             if (stateOfSet != null) {
                 completed = true;
-                System.out.println("Message successfully added! State of mySet: " + stateOfSet);
+                System.out.println("PAXOS run completed! State of mySet: " + stateOfSet);
+                System.out.println("Attempting to reset acceptors...");
+                Thread.sleep(new Random().nextInt(11) * 100); // 100-1000 milliseconds
+                this.resetAcceptors();
                 break;
             }
             System.out.println("Failed to get a consensus. Retrying prepare()");
+            maxAttempts--;
             Thread.sleep(new Random().nextInt(3) * 1000);
         }
         if (maxAttempts <= 0) {
-            System.out.println("MaxAttempts ran out! Operation cancelled. Reason: Server could not perform operation");
+            System.out.println("MaxAttempts ran out! Operation cancelled. Reason: Server could not add to set");
         }
-        System.out.println("Client prepare finished!");
     }
 
+    // helper method for RMIClient.prepare()
+    public void resetAcceptors() throws RemoteException, InterruptedException, NotBoundException {
+        try {
+            MapServer server1 = (MapServer) registry.lookup("Server1");
+            server1.resetAcceptor();
+        } catch (NotBoundException ignored) {
+            // System.out.println("(NOT TRUE) failed to reset Server1");
+        }
 
+        try {
+            MapServer server2 = (MapServer) registry.lookup("Server2");
+            server2.resetAcceptor();
+        } catch (NotBoundException ignored) {
+            // System.out.println("(NOT TRUE) failed to reset Server2");
+        }
+
+        try {
+            MapServer server3 = (MapServer) registry.lookup("Server3");
+            server3.resetAcceptor();
+        } catch (NotBoundException ignored) {
+            // System.out.println("(NOT TRUE) failed to reset Server3");
+        }
+    }
 
 }

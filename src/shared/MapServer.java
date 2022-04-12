@@ -18,4 +18,18 @@ public interface MapServer extends Remote {
 
     // ACCEPT is an ACCEPTOR method
     boolean accept(long timestamp, String message) throws RemoteException, InterruptedException, NotBoundException;
+
+    void broadcastToLearners(String message) throws RemoteException, InterruptedException, NotBoundException;
+
+    // ADDTOSET is a LEARNER method
+    void addToSet(String message) throws RemoteException, InterruptedException, NotBoundException;
+
+    Set<String> getSet() throws RemoteException, InterruptedException, NotBoundException;
+
+    // clean up methods
+    void resetAcceptor() throws RemoteException, InterruptedException, NotBoundException;
+
+    boolean isAcceptorIsActive() throws RemoteException, InterruptedException, NotBoundException;
+
+    boolean isExistingPaxosRun() throws RemoteException, InterruptedException, NotBoundException;
 }

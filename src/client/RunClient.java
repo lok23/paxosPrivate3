@@ -1,11 +1,15 @@
 package client;
 
+import java.net.SocketTimeoutException;
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
 import java.util.Scanner;
 
 import client.RMIClient;
 
 public class RunClient {
     public static void main(String[] args) throws Exception {
+        System.setProperty("sun.rmi.transport.tcp.responseTimeout", "8000"); // sets timeout for the rmi call. 8 seconds
         if (args.length != 2) {
             System.out.println("Please pass IP_ADDRESS and PORT_NUMBER as arguments through args");
         } else {
@@ -21,9 +25,12 @@ public class RunClient {
             while (true) {
                 System.out.print("Enter commands: ");
                 String line = in.nextLine();
-                System.out.println("Trying to add: " + line);
-                client.prepare(line);
-                System.out.println("PAXOS complete!");
+                try {
+                    client.prepare(line);
+                } catch (RemoteException | NotBoundException | InterruptedException ignored) { // have to use "ignored" for System.setProperty()
+                    System.out.println("Command did not work, connection timed out");
+                }
+
             }
         }
     }

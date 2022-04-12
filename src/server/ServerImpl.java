@@ -20,17 +20,17 @@ import shared.MapServer;
 
 public class ServerImpl implements MapServer {
 
+    private int serverId;
+
     private Set<String> mySet = new HashSet<>(); // "mySet" is just for testing. Remove once done
     private Map<String, Integer> myMap = new HashMap<>();
-    private int serverId;
 
     private long proposerTimestamp = 0;
     private String proposerMessage = null;
 
     private long acceptorTimestamp = 0;
     private String acceptorMessage = null;
-
-    private boolean consensusReached = false;
+    private boolean acceptorIsActive = false;
 
     public ServerImpl() throws RemoteException {
         UnicastRemoteObject.exportObject(this, 0);
@@ -38,7 +38,7 @@ public class ServerImpl implements MapServer {
 
     // PREPARE is a PROPOSER method
     @Override
-    public synchronized Set<String> prepare(long timestamp, String message) throws RemoteException, InterruptedException, NotBoundException {
+    public Set<String> prepare(long timestamp, String message) throws RemoteException, InterruptedException, NotBoundException {
         System.out.println("LOG MESSAGE: ServerImpl.prepare() entered. Server" + this.serverId);
 
 //        this.proposerTimestamp = timestamp;
@@ -145,25 +145,26 @@ public class ServerImpl implements MapServer {
     // PROMISE is an ACCEPTOR method
     // promise returns the timestamp and message
     @Override
-    public String[] promise(long timestamp) throws RemoteException, InterruptedException, NotBoundException {
+    public synchronized String[] promise(long timestamp) throws RemoteException, InterruptedException, NotBoundException {
         System.out.println("LOG MESSAGE: ServerImpl.promise() entered. Server" + this.serverId);
-        // this code could be simpler but it's easier for me to understand it this way
+        // this code could be written simpler & cleaner but imo to understand it this way with all the code comments
 
         if (timestamp < this.acceptorTimestamp) { // we will ignore an out-of-date request
             return null;
         }
 
         // if a message is accepted (aka this.acceptorMessage != null), we change the timestamp to
-        // the new (aka larger timestamp) and then return the accepted message with a newer timestamp
+        // the new (aka larger timestamp) and then return the existing accepted message with a newer timestamp
         if (this.acceptorMessage != null) { // we have accepted a message, let the proposer know about it
+            this.acceptorIsActive = true;
             this.acceptorTimestamp = timestamp; // update timestamp, and return acceptedMessage
             String[] answer = new String[2];
             answer[0] = String.valueOf(this.acceptorTimestamp);
-            answer[1] = this.acceptorMessage;
+            answer[1] = this.acceptorMessage; // will not be null
             return answer;
         } else { // otherwise announce that you have not accepted any message
-            // update the timestamp, let the proposer know we haven't accepted any message
-            this.acceptorTimestamp = timestamp;
+            this.acceptorIsActive = true;
+            this.acceptorTimestamp = timestamp; // update the timestamp, let the proposer know we haven't accepted any message
             String[] answer = new String[2];
             answer[0] = String.valueOf(this.acceptorTimestamp);
             answer[1] = this.acceptorMessage; // null
@@ -215,10 +216,7 @@ public class ServerImpl implements MapServer {
         System.out.println("acceptedCount: " + acceptedCount);
 
         if (acceptedCount >= 2) { // we can go ahead, we know that we have a quorum
-            mySet.add(message);
-            System.out.println("Server successfully added: " + message);
-            System.out.println("mySet: " + mySet);
-//            myMap.put()
+            this.broadcastToLearners(message);
             return true;
         } else {
             System.out.println("ServerImpl.propose() failed to receive 2 accepts. Timestamp: " + timestamp);
@@ -228,7 +226,7 @@ public class ServerImpl implements MapServer {
 
     // ACCEPT is an ACCEPTOR method
     @Override
-    public boolean accept(long timestamp, String message) throws RemoteException, InterruptedException, NotBoundException {
+    public synchronized  boolean accept(long timestamp, String message) throws RemoteException, InterruptedException, NotBoundException {
         System.out.println("LOG MESSAGE: ServerImpl.accept() entered. Server" + this.serverId);
         if (timestamp < this.acceptorTimestamp) {
             return false;
@@ -239,5 +237,115 @@ public class ServerImpl implements MapServer {
         }
     }
 
+    // learners are responsible for adding to the set
+    @Override
+    public void broadcastToLearners(String message) throws RemoteException, InterruptedException {
+        System.out.println("LOG MESSAGE: ServerImpl.broadcastToLearners() entered. Server" + this.serverId);
+
+        Registry registry = LocateRegistry.getRegistry("localhost", 1099);
+        MapServer server1;
+        while (true) {
+            try {
+                server1 = (MapServer) registry.lookup("Server1");
+                server1.addToSet(message);
+                System.out.println("Server1 successfully added: " + message);
+                System.out.println("Server1 mySet: " + server1.getSet());
+                break;
+            } catch (NotBoundException | InterruptedException e) {
+                System.out.println("Server1 broadcast to learner failed! Sleeping 1000 milliseconds...");
+                Thread.sleep(1000);
+            }
+        }
+
+        MapServer server2;
+        while (true) {
+            try {
+                server2 = (MapServer) registry.lookup("Server2");
+                server2.addToSet(message);
+                System.out.println("Server2 successfully added: " + message);
+                System.out.println("Server2 mySet: " + server2.getSet());
+                break;
+            } catch (NotBoundException | InterruptedException e) {
+                System.out.println("Server2 broadcast to learner failed! Sleeping 1000 milliseconds...");
+                Thread.sleep(1000);
+            }
+        }
+
+        MapServer server3;
+        while (true) {
+            try {
+                server3 = (MapServer) registry.lookup("Server3");
+                server3.addToSet(message);
+                System.out.println("Server3 successfully added: " + message);
+                System.out.println("Server3 mySet: " + server3.getSet());
+                break;
+            } catch (NotBoundException | InterruptedException e) {
+                System.out.println("Server3 broadcast to learner failed! Sleeping 1000 milliseconds...");
+                Thread.sleep(1000);
+            }
+        }
+    }
+
+    @Override
+    public void addToSet(String message) throws RemoteException, InterruptedException, NotBoundException {
+        this.mySet.add(message);
+    }
+
+    @Override
+    public Set<String> getSet() throws RemoteException, InterruptedException, NotBoundException {
+        return this.mySet;
+    }
+
+    @Override
+    public void resetAcceptor() throws RemoteException {
+        this.acceptorTimestamp = 0;
+        this.acceptorMessage = null;
+        this.acceptorIsActive = false;
+    }
+
+    @Override
+    public boolean isAcceptorIsActive() throws RemoteException, InterruptedException, NotBoundException {
+        return this.acceptorIsActive;
+    }
+
+    @Override
+    public boolean isExistingPaxosRun() throws RemoteException {
+        System.out.println("LOG MESSAGE: ServerImpl.isExistingPaxosRun() entered. Server" + this.serverId);
+
+        boolean isContention = false;
+        // TODO: make not hardcoded
+        Registry registry = LocateRegistry.getRegistry("localhost", 1099);
+        MapServer server1;
+        try {
+            server1 = (MapServer) registry.lookup("Server1");
+            if (server1.isAcceptorIsActive()) {
+                isContention = true;
+            }
+        } catch (NotBoundException | InterruptedException e) {
+            System.out.println("Server1 likely has contention");
+        }
+
+        MapServer server2;
+        try {
+            server2 = (MapServer) registry.lookup("Server2");
+            if (server2.isAcceptorIsActive()) {
+                isContention = true;
+            }
+        } catch (NotBoundException | InterruptedException e) {
+            System.out.println("Server2 likely has contention");
+        }
+
+        MapServer server3;
+        try {
+            server3 = (MapServer) registry.lookup("Server3");
+            if (server3.isAcceptorIsActive()) {
+                isContention = true;
+            }
+        } catch (NotBoundException | InterruptedException e) {
+            System.out.println("Server3 likely has contention");
+        }
+
+        return isContention;
+    }
 
 }
