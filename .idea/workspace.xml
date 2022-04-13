@@ -5,15 +5,8 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/paxosTest3/client/RMIClient.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/paxosTest3/client/RMIClient.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/paxosTest3/client/RunClient.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/paxosTest3/client/RunClient.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/paxosTest3/server/RunServer1.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/paxosTest3/server/RunServer1.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/paxosTest3/server/RunServer2.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/paxosTest3/server/RunServer2.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/paxosTest3/server/RunServer3.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/paxosTest3/server/RunServer3.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/paxosTest3/server/ServerImpl.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/paxosTest3/server/ServerImpl.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/client/RMIClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/client/RMIClient.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/client/RunClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/client/RunClient.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/server/RunServer1.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/server/RunServer1.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/server/RunServer2.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/server/RunServer2.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/server/RunServer3.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/server/RunServer3.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/server/ServerImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/server/ServerImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/shared/MapServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/shared/MapServer.java" afterDir="false" />
     </list>
@@ -134,10 +127,10 @@
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state x="223" y="70" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1536.824@0.0.1536.824" timestamp="1649737206272" />
-    <state x="574" y="122" key="#com.intellij.ide.util.MemberChooser" timestamp="1649703562696">
+    <state x="574" y="122" key="#com.intellij.ide.util.MemberChooser" timestamp="1649872261043">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state x="574" y="122" key="#com.intellij.ide.util.MemberChooser/0.0.1536.824@0.0.1536.824" timestamp="1649703562696" />
+    <state x="574" y="122" key="#com.intellij.ide.util.MemberChooser/0.0.1536.824@0.0.1536.824" timestamp="1649872261043" />
     <state x="571" y="304" width="393" height="220" key="#com.intellij.refactoring.move.moveClassesOrPackages.MoveClassesOrPackagesDialog.classes" timestamp="1649808846525">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
@@ -146,22 +139,22 @@
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state x="549" y="170" key="FileChooserDialogImpl/0.0.1536.824@0.0.1536.824" timestamp="1649647805615" />
-    <state width="1493" height="188" key="GridCell.Tab.0.bottom" timestamp="1649826132684">
+    <state width="1493" height="188" key="GridCell.Tab.0.bottom" timestamp="1649876733214">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state width="1493" height="188" key="GridCell.Tab.0.bottom/0.0.1536.824@0.0.1536.824" timestamp="1649826132684" />
-    <state width="1493" height="188" key="GridCell.Tab.0.center" timestamp="1649826132684">
+    <state width="1493" height="188" key="GridCell.Tab.0.bottom/0.0.1536.824@0.0.1536.824" timestamp="1649876733214" />
+    <state width="1493" height="188" key="GridCell.Tab.0.center" timestamp="1649876733214">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state width="1493" height="188" key="GridCell.Tab.0.center/0.0.1536.824@0.0.1536.824" timestamp="1649826132684" />
-    <state width="1493" height="188" key="GridCell.Tab.0.left" timestamp="1649826132684">
+    <state width="1493" height="188" key="GridCell.Tab.0.center/0.0.1536.824@0.0.1536.824" timestamp="1649876733214" />
+    <state width="1493" height="188" key="GridCell.Tab.0.left" timestamp="1649876733214">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state width="1493" height="188" key="GridCell.Tab.0.left/0.0.1536.824@0.0.1536.824" timestamp="1649826132684" />
-    <state width="1493" height="188" key="GridCell.Tab.0.right" timestamp="1649826132684">
+    <state width="1493" height="188" key="GridCell.Tab.0.left/0.0.1536.824@0.0.1536.824" timestamp="1649876733214" />
+    <state width="1493" height="188" key="GridCell.Tab.0.right" timestamp="1649876733214">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state width="1493" height="188" key="GridCell.Tab.0.right/0.0.1536.824@0.0.1536.824" timestamp="1649826132684" />
+    <state width="1493" height="188" key="GridCell.Tab.0.right/0.0.1536.824@0.0.1536.824" timestamp="1649876733214" />
     <state width="1493" height="261" key="GridCell.Tab.1.bottom" timestamp="1649808881787">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
@@ -178,10 +171,10 @@
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state width="1493" height="261" key="GridCell.Tab.1.right/0.0.1536.824@0.0.1536.824" timestamp="1649808881787" />
-    <state x="477" y="240" key="com.intellij.ide.util.TipDialog" timestamp="1649825409763">
+    <state x="477" y="240" key="com.intellij.ide.util.TipDialog" timestamp="1649866922810">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state x="477" y="240" key="com.intellij.ide.util.TipDialog/0.0.1536.824@0.0.1536.824" timestamp="1649825409763" />
+    <state x="477" y="240" key="com.intellij.ide.util.TipDialog/0.0.1536.824@0.0.1536.824" timestamp="1649866922810" />
     <state x="360" y="39" key="new project wizard" timestamp="1649649242434">
       <screen x="0" y="0" width="1536" height="824" />
     </state>

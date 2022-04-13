@@ -5,9 +5,12 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Random;
 import java.util.Set;
 
+import server.PaxosResults;
 import server.ServerImpl;
 import shared.MapServer;
 
@@ -64,12 +67,13 @@ public class RMIClient {
             if (server.isExistingPaxosRun()) {
                 System.out.println("There is possible contention in your paxos run");
             }
-            Set<String> stateOfSet = server.prepare(timestamp, message);
-            if (stateOfSet != null) {
+            System.out.println("Timestamp=" + getFormattedCurrentSystemTime() + ". Beginning paxos run");
+            PaxosResults paxosResults = server.prepare(timestamp, message);
+            if (!paxosResults.isFailedPaxosRun()) {
                 completed = true;
-                System.out.println("PAXOS run completed! State of mySet: " + stateOfSet);
+                System.out.println("Paxos run completed! State of myMap: " + paxosResults.getReturnedMap());
                 System.out.println("Attempting to reset acceptors...");
-                Thread.sleep(new Random().nextInt(11) * 100); // 100-1000 milliseconds
+                // Thread.sleep(new Random().nextInt(11) * 100); // 100-1000 milliseconds might
                 this.resetAcceptors();
                 break;
             }
@@ -78,7 +82,7 @@ public class RMIClient {
             Thread.sleep(new Random().nextInt(3) * 1000);
         }
         if (maxAttempts <= 0) {
-            System.out.println("MaxAttempts ran out! Operation cancelled. Reason: Server could not add to set");
+            System.out.println("MaxAttempts ran out! Operation cancelled. Reason: TODO CHANGE THIS REASON");
         }
     }
 
@@ -104,6 +108,22 @@ public class RMIClient {
         } catch (NotBoundException ignored) {
             // System.out.println("(NOT TRUE) failed to reset Server3");
         }
+    }
+
+    /**
+     * Returns a String of the current system time in "yyyy-MM-dd HH:mm:ss.SSS" format
+     *
+     * This code from:
+     * https://stackoverflow.com/questions/1459656/how-to-get-the-current-time-in-yyyy-mm-dd-hhmisec-millisecond-format-in-java
+     *
+     * @return String of current system time in "yyyy-MM-dd HH:mm:ss.SSS" format
+     */
+    public static String getFormattedCurrentSystemTime() {
+        SimpleDateFormat timeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+        // Get the current date
+        Date currentDate = new Date();
+        String currentDateTimeOutput = timeFormat.format(currentDate);
+        return currentDateTimeOutput;
     }
 
 }

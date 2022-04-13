@@ -15,20 +15,18 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import shared.MapServer;
 
-
-public class ServerImpl implements MapServer { // Serializable
+public class ServerImpl implements MapServer {
 
     private int serverId;
 
-    private Set<String> mySet = new HashSet<>(); // "mySet" is just for testing. Remove once done
-    private Map<String, Integer> myMap = new HashMap<>();
+    // private Set<String> mySet = new HashSet<>(); // "mySet" is just for testing. Remove once done
+    private Map<String, Integer> myMap = new ConcurrentHashMap<>();
 
-    private long proposerTimestamp = 0;
-    private String proposerMessage = null;
-
+    private PaxosResults paxosResults = new PaxosResults();
     private long acceptorTimestamp = 0;
     private String acceptorMessage = null;
     private boolean acceptorIsActive = false;
@@ -39,7 +37,7 @@ public class ServerImpl implements MapServer { // Serializable
 
     // PREPARE is a PROPOSER method
     @Override
-    public Set<String> prepare(long timestamp, String message) throws RemoteException, InterruptedException, NotBoundException {
+    public PaxosResults prepare(long timestamp, String message) throws RemoteException, InterruptedException, NotBoundException {
         System.out.println("LOG MESSAGE: ServerImpl.prepare() entered. Server" + this.serverId);
 
         System.out.println("prepare message: " + message);
@@ -119,26 +117,28 @@ public class ServerImpl implements MapServer { // Serializable
         }
 
         System.out.println("promiseCount: " + promiseCount);
-
         if (promiseCount >= 2) { // we can go ahead, we know that we have a quorum
             if (biggestTimeStamp == 0 && biggestMessage == null) { // nothing has been accepted yet, propose our own message
                 boolean successfulPaxosRun = this.propose(timestamp, message);
                 if (successfulPaxosRun) {
-                    return mySet;
+                    this.paxosResults.setReturnedMap(this.myMap);
                 } else {
-                    return null;
+                    this.paxosResults.setFailedPaxosRun(true);
                 }
+                return this.paxosResults;
             } else { // propagate the message associated with the biggestTimeStamp
                 boolean successfulPaxosRun = this.propose(biggestTimeStamp, biggestMessage);
                 if (successfulPaxosRun) {
-                    return mySet;
+                    this.paxosResults.setReturnedMap(this.myMap);
                 } else {
-                    return null;
+                    this.paxosResults.setFailedPaxosRun(true);
                 }
+                return this.paxosResults;
             }
         } else {
             System.out.println("ServerImpl.prepare() failed to receive 2 promises. Timestamp: " + timestamp);
-            return null;
+            this.paxosResults.setFailedPaxosRun(true);
+            return this.paxosResults;
         }
 
     }
@@ -240,80 +240,48 @@ public class ServerImpl implements MapServer { // Serializable
         }
     }
 
-//    // learners are responsible for adding to the set
-//    // v1
-//    @Override
-//    public void broadcastToLearners(String message) throws RemoteException, InterruptedException {
-//        System.out.println("LOG MESSAGE: ServerImpl.broadcastToLearners() entered. Server" + this.serverId);
-//
-//        Registry registry = LocateRegistry.getRegistry("localhost", 1099);
-//        MapServer server1;
-//        while (true) {
-//            try {
-//                server1 = (MapServer) registry.lookup("Server1");
-//                server1.addToSet(message);
-//                System.out.println("Server1 successfully added: " + message);
-//                System.out.println("Server1 mySet: " + server1.getSet());
-//                break;
-//            } catch (NotBoundException | InterruptedException e) {
-//                System.out.println("Server1 broadcast to learner failed! Sleeping 200 milliseconds...");
-//                Thread.sleep(200);
-//            }
-//        }
-//
-//        MapServer server2;
-//        while (true) {
-//            try {
-//                server2 = (MapServer) registry.lookup("Server2");
-//                server2.addToSet(message);
-//                System.out.println("Server2 successfully added: " + message);
-//                System.out.println("Server2 mySet: " + server2.getSet());
-//                break;
-//            } catch (NotBoundException | InterruptedException e) {
-//                System.out.println("Server2 broadcast to learner failed! Sleeping 200 milliseconds...");
-//                Thread.sleep(200);
-//            }
-//        }
-//
-//        MapServer server3;
-//        while (true) {
-//            try {
-//                server3 = (MapServer) registry.lookup("Server3");
-//                server3.addToSet(message);
-//                System.out.println("Server3 successfully added: " + message);
-//                System.out.println("Server3 mySet: " + server3.getSet());
-//                break;
-//            } catch (NotBoundException | InterruptedException e) {
-//                System.out.println("Server3 broadcast to learner failed! Sleeping 200 milliseconds...");
-//                Thread.sleep(200);
-//            }
-//        }
-//    }
-
-    // v2
+    // learners are responsible for adding to the set
+    // v1
     @Override
     public void broadcastToLearners(String message) throws RemoteException, InterruptedException {
         System.out.println("LOG MESSAGE: ServerImpl.broadcastToLearners() entered. Server" + this.serverId);
 
         Registry registry = LocateRegistry.getRegistry("localhost", 1099);
-
         MapServer server1;
-        MapServer server2;
-        MapServer server3;
         while (true) {
             try {
                 server1 = (MapServer) registry.lookup("Server1");
-                server2 = (MapServer) registry.lookup("Server2");
-                server3 = (MapServer) registry.lookup("Server3");
-                server1.addToSet(message);
-                server2.addToSet(message);
-                server3.addToSet(message);
+                server1.executeCommand(message);
                 System.out.println("Server1 successfully added: " + message);
-                System.out.println("Server1 mySet: " + server1.getSet());
+                System.out.println("Server1 myMap: " + server1.getMap());
+                break;
+            } catch (NotBoundException | InterruptedException e) {
+                System.out.println("Server1 broadcast to learner failed! Sleeping 200 milliseconds...");
+                Thread.sleep(200);
+            }
+        }
+
+        MapServer server2;
+        while (true) {
+            try {
+                server2 = (MapServer) registry.lookup("Server2");
+                server2.executeCommand(message);
                 System.out.println("Server2 successfully added: " + message);
-                System.out.println("Server2 mySet: " + server2.getSet());
+                System.out.println("Server2 myMap: " + server2.getMap());
+                break;
+            } catch (NotBoundException | InterruptedException e) {
+                System.out.println("Server2 broadcast to learner failed! Sleeping 200 milliseconds...");
+                Thread.sleep(200);
+            }
+        }
+
+        MapServer server3;
+        while (true) {
+            try {
+                server3 = (MapServer) registry.lookup("Server3");
+                server3.executeCommand(message);
                 System.out.println("Server3 successfully added: " + message);
-                System.out.println("Server3 mySet: " + server3.getSet());
+                System.out.println("Server3 myMap: " + server3.getMap());
                 break;
             } catch (NotBoundException | InterruptedException e) {
                 System.out.println("Server3 broadcast to learner failed! Sleeping 200 milliseconds...");
@@ -322,18 +290,76 @@ public class ServerImpl implements MapServer { // Serializable
         }
     }
 
+    // v2 // USE THE other one?
+//    @Override
+//    public void broadcastToLearners(String message) throws RemoteException, InterruptedException {
+//        System.out.println("LOG MESSAGE: ServerImpl.broadcastToLearners() entered. Server" + this.serverId);
+//
+//        Registry registry = LocateRegistry.getRegistry("localhost", 1099);
+//
+//        MapServer server1;
+//        MapServer server2;
+//        MapServer server3;
+//        while (true) {
+//            try {
+//                server1 = (MapServer) registry.lookup("Server1");
+//                server2 = (MapServer) registry.lookup("Server2");
+//                server3 = (MapServer) registry.lookup("Server3");
+//                server1.executeCommand(message);
+//                server2.executeCommand(message);
+//                server3.executeCommand(message);
+//                System.out.println("Server1 successfully added: " + message);
+//                System.out.println("Server1 myMap: " + server1.getMap());
+//                System.out.println("Server2 successfully added: " + message);
+//                System.out.println("Server2 myMap: " + server2.getMap());
+//                System.out.println("Server3 successfully added: " + message);
+//                System.out.println("Server3 myMap: " + server3.getMap());
+//                break;
+//            } catch (NotBoundException | InterruptedException e) {
+//                System.out.println("Server broadcast to learner failed! Sleeping 200 milliseconds...");
+//                Thread.sleep(200);
+//            }
+//        }
+//    }
+
     @Override
-    public void addToSet(String message) throws RemoteException, InterruptedException, NotBoundException {
-        this.mySet.add(message);
+    public void executeCommand(String message) throws RemoteException, InterruptedException, NotBoundException {
+        String[] splitClientMessage = message.split(" ");
+        if (splitClientMessage[0].equals("PUT")) {
+            String name = splitClientMessage[1];
+            Integer salary = Integer.valueOf(splitClientMessage[2]);
+            this.myMap.put(name, salary);
+            // responseToClient = "Successful PUT operation: " + key + " " + stringValue; // no need to mention coordinator because client doesn't need to know about coordinator
+        } else if (splitClientMessage[0].equals("GET")) {
+            String name = splitClientMessage[1];
+            Integer value = this.myMap.get(name);
+            if (value != null) { // successful GET operation
+                // responseToClient = "Successful GET operation. key=" + key + " value=" + String.valueOf(value);
+            } else {
+                // responseToClient = "Unsuccessful operation: GET's key does not exist";
+            }
+        } else if (splitClientMessage[0].equals("DELETE")) {
+            String name = splitClientMessage[1];
+            Integer value = this.myMap.remove(name);
+            if (value != null) { // successful remove
+                // responseToClient = "Successful DELETE operation: " + key; // no need to mention coordinator because client doesn't need to know about coordinator
+            }  else {
+                // responseToClient = "Unsuccessful operation: DELETE's key does not exist";
+            }
+        } else {
+            System.out.println("shouldn't have gotten here");
+        }
+
     }
 
     @Override
-    public Set<String> getSet() throws RemoteException, InterruptedException, NotBoundException {
-        return this.mySet;
+    public Map<String, Integer> getMap() throws RemoteException, InterruptedException, NotBoundException {
+        return this.myMap;
     }
 
     @Override
     public void resetAcceptor() throws RemoteException {
+        this.paxosResults = new PaxosResults();
         this.acceptorTimestamp = 0;
         this.acceptorMessage = null;
         this.acceptorIsActive = false;
