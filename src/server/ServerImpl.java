@@ -1,5 +1,6 @@
 package server;
 
+import java.io.Serializable;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -18,7 +19,7 @@ import java.util.Set;
 import shared.MapServer;
 
 
-public class ServerImpl implements MapServer {
+public class ServerImpl implements MapServer { // Serializable
 
     private int serverId;
 
@@ -41,8 +42,8 @@ public class ServerImpl implements MapServer {
     public Set<String> prepare(long timestamp, String message) throws RemoteException, InterruptedException, NotBoundException {
         System.out.println("LOG MESSAGE: ServerImpl.prepare() entered. Server" + this.serverId);
 
-//        this.proposerTimestamp = timestamp;
-//        this.proposerMessage = message;
+        System.out.println("prepare message: " + message);
+
         int promiseCount = 0;
 
         // the bigger the timestamp, the "newer" it is
@@ -226,62 +227,97 @@ public class ServerImpl implements MapServer {
 
     // ACCEPT is an ACCEPTOR method
     @Override
-    public synchronized  boolean accept(long timestamp, String message) throws RemoteException, InterruptedException, NotBoundException {
+    public synchronized boolean accept(long timestamp, String message) throws RemoteException, InterruptedException, NotBoundException {
         System.out.println("LOG MESSAGE: ServerImpl.accept() entered. Server" + this.serverId);
-        if (timestamp < this.acceptorTimestamp) {
+        if (timestamp < this.acceptorTimestamp) { // we will ignore an out-of-date request
             return false;
         } else { // our proposal has the biggest timestamp this acceptor has seen, we can finally accept this
             this.acceptorTimestamp = timestamp;
             this.acceptorMessage = message;
+            System.out.println("ACCEPTED TIMESTAMP: " + acceptorTimestamp);
+            System.out.println("ACCEPTED MESSAGE: " + acceptorMessage);
             return true;
         }
     }
 
-    // learners are responsible for adding to the set
+//    // learners are responsible for adding to the set
+//    // v1
+//    @Override
+//    public void broadcastToLearners(String message) throws RemoteException, InterruptedException {
+//        System.out.println("LOG MESSAGE: ServerImpl.broadcastToLearners() entered. Server" + this.serverId);
+//
+//        Registry registry = LocateRegistry.getRegistry("localhost", 1099);
+//        MapServer server1;
+//        while (true) {
+//            try {
+//                server1 = (MapServer) registry.lookup("Server1");
+//                server1.addToSet(message);
+//                System.out.println("Server1 successfully added: " + message);
+//                System.out.println("Server1 mySet: " + server1.getSet());
+//                break;
+//            } catch (NotBoundException | InterruptedException e) {
+//                System.out.println("Server1 broadcast to learner failed! Sleeping 200 milliseconds...");
+//                Thread.sleep(200);
+//            }
+//        }
+//
+//        MapServer server2;
+//        while (true) {
+//            try {
+//                server2 = (MapServer) registry.lookup("Server2");
+//                server2.addToSet(message);
+//                System.out.println("Server2 successfully added: " + message);
+//                System.out.println("Server2 mySet: " + server2.getSet());
+//                break;
+//            } catch (NotBoundException | InterruptedException e) {
+//                System.out.println("Server2 broadcast to learner failed! Sleeping 200 milliseconds...");
+//                Thread.sleep(200);
+//            }
+//        }
+//
+//        MapServer server3;
+//        while (true) {
+//            try {
+//                server3 = (MapServer) registry.lookup("Server3");
+//                server3.addToSet(message);
+//                System.out.println("Server3 successfully added: " + message);
+//                System.out.println("Server3 mySet: " + server3.getSet());
+//                break;
+//            } catch (NotBoundException | InterruptedException e) {
+//                System.out.println("Server3 broadcast to learner failed! Sleeping 200 milliseconds...");
+//                Thread.sleep(200);
+//            }
+//        }
+//    }
+
+    // v2
     @Override
     public void broadcastToLearners(String message) throws RemoteException, InterruptedException {
         System.out.println("LOG MESSAGE: ServerImpl.broadcastToLearners() entered. Server" + this.serverId);
 
         Registry registry = LocateRegistry.getRegistry("localhost", 1099);
+
         MapServer server1;
-        while (true) {
-            try {
-                server1 = (MapServer) registry.lookup("Server1");
-                server1.addToSet(message);
-                System.out.println("Server1 successfully added: " + message);
-                System.out.println("Server1 mySet: " + server1.getSet());
-                break;
-            } catch (NotBoundException | InterruptedException e) {
-                System.out.println("Server1 broadcast to learner failed! Sleeping 1000 milliseconds...");
-                Thread.sleep(1000);
-            }
-        }
-
         MapServer server2;
-        while (true) {
-            try {
-                server2 = (MapServer) registry.lookup("Server2");
-                server2.addToSet(message);
-                System.out.println("Server2 successfully added: " + message);
-                System.out.println("Server2 mySet: " + server2.getSet());
-                break;
-            } catch (NotBoundException | InterruptedException e) {
-                System.out.println("Server2 broadcast to learner failed! Sleeping 1000 milliseconds...");
-                Thread.sleep(1000);
-            }
-        }
-
         MapServer server3;
         while (true) {
             try {
+                server1 = (MapServer) registry.lookup("Server1");
+                server2 = (MapServer) registry.lookup("Server2");
                 server3 = (MapServer) registry.lookup("Server3");
+                server1.addToSet(message);
+                server2.addToSet(message);
                 server3.addToSet(message);
+                System.out.println("Server1 successfully added: " + message);
+                System.out.println("Server1 mySet: " + server1.getSet());
+                System.out.println("Server2 successfully added: " + message);
+                System.out.println("Server2 mySet: " + server2.getSet());
                 System.out.println("Server3 successfully added: " + message);
                 System.out.println("Server3 mySet: " + server3.getSet());
                 break;
             } catch (NotBoundException | InterruptedException e) {
-                System.out.println("Server3 broadcast to learner failed! Sleeping 1000 milliseconds...");
-                Thread.sleep(1000);
+                System.out.println("Server3 broadcast to learner failed! Sleeping 200 milliseconds...");
+                Thread.sleep(200);
             }
         }
     }

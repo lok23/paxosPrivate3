@@ -5,9 +5,11 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.Set;
 
+/**
+ * MapServer. ServerImpl implements these methods, and RMIClient accesses them via RMI.
+ */
 public interface MapServer extends Remote {
 
-    // PREPARE is a PROPOSER method
     Set<String> prepare(long timestamp, String message) throws RemoteException, InterruptedException, NotBoundException;
 
     // PROMISE is an ACCEPTOR method

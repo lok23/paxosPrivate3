@@ -58,11 +58,11 @@ public class RMIClient {
                     if (maxAttempts <= 0) {
                         System.out.println("MaxAttempts ran out! Operation cancelled. Reason: All servers down");
                     }
-                    Thread.sleep(new Random().nextInt(3) * 1000);
+                    Thread.sleep(new Random().nextInt(2) * 1000 + 1000);
                     continue;
             }
             if (server.isExistingPaxosRun()) {
-                System.out.println("There is likely contention in your paxos run");
+                System.out.println("There is possible contention in your paxos run");
             }
             Set<String> stateOfSet = server.prepare(timestamp, message);
             if (stateOfSet != null) {
