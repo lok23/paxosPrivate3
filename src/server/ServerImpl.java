@@ -1,29 +1,24 @@
 package server;
 
-import java.io.Serializable;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import shared.MapServer;
 
+/**
+ * ServerImpl contains the proposer, acceptor, and learner methods.
+ * Check out MapServer interface for (most) of the method documentation.
+ * I didn't want to clutter up ServerImpl with too much text.
+ */
 public class ServerImpl implements MapServer {
 
     private int serverId;
 
-    // private Set<String> mySet = new HashSet<>(); // "mySet" is just for testing. Remove once done
     private Map<String, Integer> myMap = new ConcurrentHashMap<>();
 
     private PaxosResults paxosResults = new PaxosResults();
@@ -35,7 +30,6 @@ public class ServerImpl implements MapServer {
         UnicastRemoteObject.exportObject(this, 0);
     }
 
-    // PREPARE is a PROPOSER method
     @Override
     public PaxosResults prepare(long timestamp, String message) throws RemoteException, InterruptedException, NotBoundException {
         System.out.println("LOG MESSAGE: ServerImpl.prepare() entered. Server" + this.serverId);
@@ -165,7 +159,7 @@ public class ServerImpl implements MapServer {
             return answer;
         } else { // otherwise announce that you have not accepted any message
             this.acceptorIsActive = true;
-            this.acceptorTimestamp = timestamp; // update the timestamp, let the proposer know we haven't accepted any message
+            this.acceptorTimestamp = timestamp; // update the timestamp
             String[] answer = new String[2];
             answer[0] = String.valueOf(this.acceptorTimestamp);
             answer[1] = this.acceptorMessage; // null
@@ -240,10 +234,15 @@ public class ServerImpl implements MapServer {
         }
     }
 
-    // learners are responsible for adding to the set
-    // v1
-    @Override
-    public void broadcastToLearners(String message) throws RemoteException, InterruptedException {
+    /**
+     * BROADCASTTOLEARNERS is a learner method. Once we have achieved a consensus over which
+     * message (ie 2 or more accepts for that message) we want to execute, we execute this
+     * GET/PUT/DELETE message over all servers.
+     * @param message GET/PUT/DELETE message we want to execute
+     * @throws RemoteException
+     * @throws InterruptedException
+     */
+    private void broadcastToLearners(String message) throws RemoteException, InterruptedException {
         System.out.println("LOG MESSAGE: ServerImpl.broadcastToLearners() entered. Server" + this.serverId);
 
         Registry registry = LocateRegistry.getRegistry("localhost", 1099);
@@ -290,38 +289,6 @@ public class ServerImpl implements MapServer {
         }
     }
 
-    // v2 // USE THE other one?
-//    @Override
-//    public void broadcastToLearners(String message) throws RemoteException, InterruptedException {
-//        System.out.println("LOG MESSAGE: ServerImpl.broadcastToLearners() entered. Server" + this.serverId);
-//
-//        Registry registry = LocateRegistry.getRegistry("localhost", 1099);
-//
-//        MapServer server1;
-//        MapServer server2;
-//        MapServer server3;
-//        while (true) {
-//            try {
-//                server1 = (MapServer) registry.lookup("Server1");
-//                server2 = (MapServer) registry.lookup("Server2");
-//                server3 = (MapServer) registry.lookup("Server3");
-//                server1.executeCommand(message);
-//                server2.executeCommand(message);
-//                server3.executeCommand(message);
-//                System.out.println("Server1 successfully added: " + message);
-//                System.out.println("Server1 myMap: " + server1.getMap());
-//                System.out.println("Server2 successfully added: " + message);
-//                System.out.println("Server2 myMap: " + server2.getMap());
-//                System.out.println("Server3 successfully added: " + message);
-//                System.out.println("Server3 myMap: " + server3.getMap());
-//                break;
-//            } catch (NotBoundException | InterruptedException e) {
-//                System.out.println("Server broadcast to learner failed! Sleeping 200 milliseconds...");
-//                Thread.sleep(200);
-//            }
-//        }
-//    }
-
     @Override
     public void executeCommand(String message) throws RemoteException, InterruptedException, NotBoundException {
         String[] splitClientMessage = message.split(" ");
@@ -329,27 +296,31 @@ public class ServerImpl implements MapServer {
             String name = splitClientMessage[1];
             Integer salary = Integer.valueOf(splitClientMessage[2]);
             this.myMap.put(name, salary);
-            // responseToClient = "Successful PUT operation: " + key + " " + stringValue; // no need to mention coordinator because client doesn't need to know about coordinator
+            String returnedMessage = "Successful PUT operation: " + name + " " + salary;
+            this.paxosResults.setReturnedMessage(returnedMessage);
         } else if (splitClientMessage[0].equals("GET")) {
             String name = splitClientMessage[1];
-            Integer value = this.myMap.get(name);
-            if (value != null) { // successful GET operation
-                // responseToClient = "Successful GET operation. key=" + key + " value=" + String.valueOf(value);
+            Integer salary = this.myMap.get(name);
+            if (salary != null) { // successful GET operation
+                String returnedMessage = "Successful GET operation. key=" + name + " value=" + salary;
+                this.paxosResults.setReturnedMessage(returnedMessage);
             } else {
-                // responseToClient = "Unsuccessful operation: GET's key does not exist";
+                String returnedMessage = "Unsuccessful operation: GET's key does not exist";
+                this.paxosResults.setReturnedMessage(returnedMessage);
             }
         } else if (splitClientMessage[0].equals("DELETE")) {
             String name = splitClientMessage[1];
             Integer value = this.myMap.remove(name);
             if (value != null) { // successful remove
-                // responseToClient = "Successful DELETE operation: " + key; // no need to mention coordinator because client doesn't need to know about coordinator
+                String returnedMessage = "Successful DELETE operation: " + name;
+                this.paxosResults.setReturnedMessage(returnedMessage);
             }  else {
-                // responseToClient = "Unsuccessful operation: DELETE's key does not exist";
+                String returnedMessage = "Unsuccessful operation: DELETE's key does not exist";
+                this.paxosResults.setReturnedMessage(returnedMessage);
             }
         } else {
             System.out.println("shouldn't have gotten here");
         }
-
     }
 
     @Override

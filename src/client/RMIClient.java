@@ -1,6 +1,5 @@
 package client;
 
-import java.rmi.AccessException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -8,10 +7,8 @@ import java.rmi.registry.Registry;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Random;
-import java.util.Set;
 
 import server.PaxosResults;
-import server.ServerImpl;
 import shared.MapServer;
 
 public class RMIClient {
@@ -34,7 +31,6 @@ public class RMIClient {
                 case 1:
                     try {
                         server = (MapServer) registry.lookup("Server1");
-                        System.out.println("CLIENT TRYING SERVER1");
                         break;
                     } catch (NotBoundException e) {
                         System.out.println("Couldn't connect to Server1, trying Server2");
@@ -42,7 +38,6 @@ public class RMIClient {
                 case 2:
                     try {
                         server = (MapServer) registry.lookup("Server2");
-                        System.out.println("CLIENT TRYING SERVER2");
                         break;
                     } catch (NotBoundException e) {
                         System.out.println("Couldn't connect to Server2, trying Server3");
@@ -50,7 +45,6 @@ public class RMIClient {
                 case 3:
                     try {
                         server = (MapServer) registry.lookup("Server3");
-                        System.out.println("CLIENT TRYING SERVER3");
                         break;
                     } catch (NotBoundException e) {
                         System.out.println("Couldn't connect to Server3.");
@@ -69,6 +63,9 @@ public class RMIClient {
             }
             System.out.println("Timestamp=" + getFormattedCurrentSystemTime() + ". Beginning paxos run");
             PaxosResults paxosResults = server.prepare(timestamp, message);
+            if (!paxosResults.getReturnedMessage().equals("")) {
+                System.out.println(paxosResults.getReturnedMessage());
+            }
             if (!paxosResults.isFailedPaxosRun()) {
                 completed = true;
                 System.out.println("Paxos run completed! State of myMap: " + paxosResults.getReturnedMap());

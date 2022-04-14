@@ -5,10 +5,10 @@ import java.util.Map;
 
 public class PaxosResults implements Serializable {
 
-    boolean isFailedPaxosRun; // null = isFailedPaxosRun
-    boolean isBadInput; //  bad input = isBadInput
-    String returnedMessage;
-    Map<String, Integer> returnedMap; // success = returnedMap
+    private boolean isFailedPaxosRun; // null = isFailedPaxosRun
+    private boolean isBadInput; //  bad input = isBadInput
+    private String returnedMessage;
+    private Map<String, Integer> returnedMap; // success = returnedMap
 
     public PaxosResults() {
         this.isFailedPaxosRun = false;

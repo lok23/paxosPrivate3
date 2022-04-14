@@ -7,11 +7,7 @@ import shared.MapServer;
 import java.rmi.AlreadyBoundException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
-import java.rmi.server.ExportException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 import shared.MapServer;

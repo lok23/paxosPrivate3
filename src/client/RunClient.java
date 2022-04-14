@@ -32,9 +32,12 @@ public class RunClient {
 
                 try {
                     client.prepare(line);
-                } catch (RemoteException | NotBoundException | InterruptedException e) { // have to use "ignored" for System.setProperty()
-                    System.out.println(e);
-                    System.out.println("Connection timed out (10 seconds)");
+                } catch (RemoteException e) {
+                    System.out.println("RemoteException, couldn't find RMI registry");
+                } catch (NotBoundException e) {
+                    System.out.println("NotBoundException, server not on RMI registry");
+                } catch (InterruptedException e) {
+                    System.out.println("InterruptedException, connection timed out (10 seconds)");
                 }
 
             }
