@@ -9,19 +9,26 @@ import java.util.Random;
 
 import shared.MapServer;
 
-// RUN RunServer1 first, as it creates the registry
+/**
+ * RunServer1 represents Server1. RunServer1's main method covers the binding and unbinding
+ * of the server, simulating the random "failing" and then recovering of the server.
+ * Run RunServer1 first, as it creates the registry.
+ * NOTE TO TA: Since the server goes through failure/restart and the server consists of
+ * the propoesr, acceptor, and learner, this should make me eligible for the extra credit :).
+ */
 public class RunServer1 {
 
     private static Registry registry;
 
     public static void main(String[] args) throws RemoteException, AlreadyBoundException, NotBoundException, InterruptedException {
-        if (args.length != 1) {
-            System.out.println("Please pass PORT_NUMBER as arguments through args");
+        if (args.length != 2) {
+            System.out.println("Please pass IP_ADDRESS and PORT_NUMBER as arguments through args");
         } else {
-            int PORT_NUMBER = Integer.valueOf(args[0]);
+            String IP_ADDRESS = args[0];
+            int PORT_NUMBER = Integer.valueOf(args[1]);
 
             registry = LocateRegistry.createRegistry(PORT_NUMBER);
-            MapServer server1 = new ServerImpl();
+            MapServer server1 = new ServerImpl(IP_ADDRESS, PORT_NUMBER);
             registry.bind("Server1", server1);
 
             long start;

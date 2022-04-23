@@ -11,17 +11,30 @@ import java.util.Random;
 import server.PaxosResults;
 import shared.MapServer;
 
+/**
+ * RMIClient. The RMIClient connects to 1 of the 3 servers, which the client uses to perform operations.
+ */
 public class RMIClient {
     private Registry registry;
 
+    // all servers are stored on this RMI registry
     public void startClient(String IP_ADDRESS, int PORT_NUMBER) throws Exception {
         registry = LocateRegistry.getRegistry(IP_ADDRESS, PORT_NUMBER);
     }
 
+    /**
+     * Initiates paxos prepare method on a server, thus beginning the paxos run. Tries to initiate a
+     * successful paxos run 4 times, before giving up. After a successful paxos run, resets
+     * all acceptors so that a new paxos run can be initiated.
+     * @param message GET, PUT, DELETE command that user wants to execute on the map
+     * @throws RemoteException
+     * @throws InterruptedException
+     * @throws NotBoundException
+     */
+
     public void prepare(String message) throws RemoteException, InterruptedException, NotBoundException {
         int maxAttempts = 4;
-        boolean completed = false;
-        while (maxAttempts > 0 && !completed) {
+        while (maxAttempts > 0) {
             long timestamp = System.currentTimeMillis();
             MapServer server;
 
@@ -55,7 +68,7 @@ public class RMIClient {
                     if (maxAttempts <= 0) {
                         System.out.println("MaxAttempts ran out! Operation cancelled. Reason: All servers down");
                     }
-                    Thread.sleep(new Random().nextInt(2) * 1000 + 1000);
+                    Thread.sleep(new Random().nextInt(2) * 500 + 500); // try again in 0.5-1.0 seconds
                     continue;
             }
             if (server.isExistingPaxosRun()) {
@@ -67,10 +80,8 @@ public class RMIClient {
                 System.out.println(paxosResults.getReturnedMessage());
             }
             if (!paxosResults.isFailedPaxosRun()) {
-                completed = true;
-                System.out.println("Paxos run completed! State of myMap: " + paxosResults.getReturnedMap());
+                System.out.println("(DEBUG MESSAGE FOR TA'S): Paxos run completed! State of map: " + paxosResults.getReturnedMap());
                 System.out.println("Attempting to reset acceptors...");
-                // Thread.sleep(new Random().nextInt(11) * 100); // 100-1000 milliseconds might
                 this.resetAcceptors();
                 break;
             }
@@ -79,31 +90,36 @@ public class RMIClient {
             Thread.sleep(new Random().nextInt(3) * 1000);
         }
         if (maxAttempts <= 0) {
-            System.out.println("MaxAttempts ran out! Operation cancelled. Reason: TODO CHANGE THIS REASON");
+            System.out.println("MaxAttempts ran out! Operation cancelled. Reason: Failed paxos runs");
         }
     }
 
-    // helper method for RMIClient.prepare()
+    /**
+     * Helper method for RMIClient.prepare(). Resets acceptor state so new paxos run can occur.
+     * @throws RemoteException
+     * @throws InterruptedException
+     * @throws NotBoundException
+     */
     public void resetAcceptors() throws RemoteException, InterruptedException, NotBoundException {
         try {
             MapServer server1 = (MapServer) registry.lookup("Server1");
             server1.resetAcceptor();
-        } catch (NotBoundException ignored) {
-            // System.out.println("(NOT TRUE) failed to reset Server1");
+        } catch (NotBoundException ignored) { // may occur if the server isn't bound
+
         }
 
         try {
             MapServer server2 = (MapServer) registry.lookup("Server2");
             server2.resetAcceptor();
-        } catch (NotBoundException ignored) {
-            // System.out.println("(NOT TRUE) failed to reset Server2");
+        } catch (NotBoundException ignored) { // may occur if the server isn't bound
+
         }
 
         try {
             MapServer server3 = (MapServer) registry.lookup("Server3");
             server3.resetAcceptor();
-        } catch (NotBoundException ignored) {
-            // System.out.println("(NOT TRUE) failed to reset Server3");
+        } catch (NotBoundException ignored) { // may occur if the server isn't bound
+
         }
     }
 

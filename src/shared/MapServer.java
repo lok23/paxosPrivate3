@@ -4,7 +4,6 @@ import java.rmi.NotBoundException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.Map;
-import java.util.Set;
 
 import server.PaxosResults;
 
@@ -12,6 +11,7 @@ import server.PaxosResults;
  * MapServer. ServerImpl implements these methods, and RMIClient accesses them via RMI.
  */
 public interface MapServer extends Remote {
+
     /**
      * PREPARE is a PROPOSER method. This method sends a prepare timestamp to all
      * acceptors, and starts the paxos algorithm. At the end, it returns information
@@ -79,6 +79,24 @@ public interface MapServer extends Remote {
     void executeCommand(String message) throws RemoteException, InterruptedException, NotBoundException;
 
     /**
+     * A clean up method. Resets the acceptors, so that we can run more than 1 paxos run.
+     * @throws RemoteException
+     * @throws InterruptedException
+     * @throws NotBoundException
+     */
+    void resetAcceptor() throws RemoteException, InterruptedException, NotBoundException;
+
+    /**
+     * Returns whether a paxos run is occurring. A paxos run is occurring if at least one
+     * acceptor is active (aka taking part in a paxos run).
+     * @return boolean, indicating whether a paxos run is occurring.
+     * @throws RemoteException
+     * @throws InterruptedException
+     * @throws NotBoundException
+     */
+    boolean isExistingPaxosRun() throws RemoteException, InterruptedException, NotBoundException;
+
+    /**
      * Returns the map<k,v> that is stored on this server.
      * @return Map<String, Integer> representing an employee and their salary.
      * @throws RemoteException
@@ -86,14 +104,6 @@ public interface MapServer extends Remote {
      * @throws NotBoundException
      */
     Map<String, Integer> getMap() throws RemoteException, InterruptedException, NotBoundException;
-
-    /**
-     * A clean up method. Resets the acceptors, so that we can run more than 1 paxos run.
-     * @throws RemoteException
-     * @throws InterruptedException
-     * @throws NotBoundException
-     */
-    void resetAcceptor() throws RemoteException, InterruptedException, NotBoundException;
 
     /**
      * Helper method for isExistingPaxosRun(). Returns whether an acceptor is
@@ -105,13 +115,4 @@ public interface MapServer extends Remote {
      */
     boolean isAcceptorIsActive() throws RemoteException, InterruptedException, NotBoundException;
 
-    /**
-     * Returns whether a paxos run is occurring. A paxos run is occurring if at least one
-     * acceptor is active (aka taking part in a paxos run).
-     * @return boolean, indicating whether a paxos run is occurring.
-     * @throws RemoteException
-     * @throws InterruptedException
-     * @throws NotBoundException
-     */
-    boolean isExistingPaxosRun() throws RemoteException, InterruptedException, NotBoundException;
 }

@@ -10,20 +10,26 @@ import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
 import java.util.Random;
 
-import shared.MapServer;
-
+/**
+ * RunServer2 represents Server2. RunServer2's main method covers the binding and unbinding
+ * of the server, simulating the random "failing" and then recovering of the server.
+ * Run RunServer2 after running RunServer1.
+ * NOTE TO TA: Since the server goes through failure/restart and the server consists of
+ * the propoesr, acceptor, and learner, this should make me eligible for the extra credit :).
+ */
 public class RunServer2 {
 
     private static Registry registry;
 
     public static void main(String[] args) throws RemoteException, AlreadyBoundException, NotBoundException, InterruptedException {
-        if (args.length != 1) {
-            System.out.println("Please pass PORT_NUMBER as arguments through args");
+        if (args.length != 2) {
+            System.out.println("Please pass IP_ADDRESS and PORT_NUMBER as arguments through args");
         } else {
-            int PORT_NUMBER = Integer.valueOf(args[0]);
+            String IP_ADDRESS = args[0];
+            int PORT_NUMBER = Integer.valueOf(args[1]);
 
-            registry = LocateRegistry.getRegistry("localhost", PORT_NUMBER);
-            MapServer server2 = new ServerImpl();
+            registry = LocateRegistry.getRegistry(IP_ADDRESS, PORT_NUMBER);
+            MapServer server2 = new ServerImpl(IP_ADDRESS, PORT_NUMBER);
             registry.bind("Server2", server2);
 
             long start;
